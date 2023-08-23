@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class PlayerController : MonoBehaviour
     public float upForce = 200f;
     public float horizontal;
     public float vertical;
+
+    public bool isOnGround = true;
 
     // Start is called before the first frame update
     void Start()
@@ -25,25 +28,25 @@ public class PlayerController : MonoBehaviour
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
-        Vector2 move = new Vector2(horizontal, vertical);
+        Vector2 velocity = new Vector2(horizontal * speed, rigidbody2d.velocity.y);
 
-        if (Input.GetMouseButtonDown(0))
+        // Move the object
+        rigidbody2d.velocity = velocity;
+
+        if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
         {
-            
-            rigidbody2d.AddForce(Vector2.up * upForce, ForceMode2D.Impulse);
+            rigidbody2d.AddForce(Vector3.up * upForce, ForceMode2D.Impulse);
+            isOnGround = false;
         }
     }
 
-    void FixedUpdate()
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        //Create the movement vector
-        Vector2 position = rigidbody2d.position;
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isOnGround = true;
 
-        //Changing the x and y position
-        position.x = position.x + speed * horizontal * Time.deltaTime;
-        position.y = position.y + speed * vertical * Time.deltaTime;
-
-        //Set the updated position
-        rigidbody2d.MovePosition(position);
+        }
     }
+
 }
